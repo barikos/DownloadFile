@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">DownloadFile</string>
+
+    <string name="btn_main_download">Загрузить</string>
+    <string name="btn_main_update">Обновить</string>
+
+    <string name="txt_notify_down_ticker">Загрузка</string>
+    <string name="txt_notify_upd_ticker">Обновление</string>
+    <string name="txt_notify_title_down_start">Файл загружается</string>
+    <string name="txt_notify_title_down_stop">Файл загружен</string>
+    <string name="txt_notify_down_progress">Загрузка в процессе</string>
+    <string name="txt_notify_down_prog_finish">Загрузка выполнена</string>
+    <string name="txt_notify_title_upd_start">Файл обновляется</string>
+    <string name="txt_notify_title_upd_stop">Файл обновился</string>
+    <string name="txt_notify_upd_progress">Обновление в процессе</string>
+    <string name="txt_notify_upd_prog_finish">Обновление выполнено</string>
+
+    <string name="txt_notify_renew_ticker">Обновление</string>
+    <string name="txt_notify_renew_title">Доступно новое обновление</string>
+    <string name="txt_notify_renew_text">Обновить</string>
+    <string name="txt_notify_renew">Обновить</string>
+
+</resources>
