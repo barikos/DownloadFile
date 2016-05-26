@@ -2,14 +2,12 @@ package com.minutes111.downloadfile.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.minutes111.downloadfile.Const;
 import com.minutes111.downloadfile.network.FileDownloader;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import com.minutes111.downloadfile.util.PreferencesUtil;
 
 /**
  * Class {@link DownloadService}
@@ -21,7 +19,7 @@ import java.util.Calendar;
 
 public class DownloadService extends Service {
 
-    private SharedPreferences mPreferences;
+    private PreferencesUtil mPreferences;
 
     public DownloadService() {
     }
@@ -29,16 +27,18 @@ public class DownloadService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        mPreferences = getSharedPreferences(Const.PREF_NAME,MODE_PRIVATE);
+        mPreferences = PreferencesUtil.getInstance(this);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String url = intent.getStringExtra(Const.EX_ATTR_FILE_URL);
-        String process = intent.getStringExtra(Const.EX_ATTR_PROC);
+        int process = intent.getIntExtra(Const.EX_ATTR_PROC,0);
         new FileDownloader(url,this,process).execute();
-        setSharedPreferences(url);
-        stopSelf();
+
+        mPreferences.setPreferences(url);
+        Log.d(Const.LOG_TAG,"before stop");
+        stopSelfResult(startId);
         return Service.START_FLAG_REDELIVERY;
     }
 
@@ -48,11 +48,4 @@ public class DownloadService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void setSharedPreferences(String url){
-        SharedPreferences.Editor editor = mPreferences.edit();
-        String date = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(Calendar.getInstance().getTime());
-        editor.putString(Const.PREF_ATTR_FURL,url);
-        editor.putString(Const.PREF_ATTR_DATE,date);
-        editor.commit();
-    }
 }

@@ -1,18 +1,12 @@
 package com.minutes111.downloadfile.network;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.minutes111.downloadfile.Const;
-import com.minutes111.downloadfile.R;
-import com.minutes111.downloadfile.ui.MainActivity;
+import com.minutes111.downloadfile.util.NotificationUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +19,7 @@ import java.net.URL;
 /**
  * Class {@link FileDownloader}
  * Download or update file from network by url
+ *
  * @author Alexandr Barkovskiy
  * @version 1.0
  * @since 20.05.16
@@ -32,13 +27,12 @@ import java.net.URL;
 public class FileDownloader extends AsyncTask<String, Integer, Void> {
 
     private String mUrl;
-    private String mProcess;
+    private int mProcess;
     private Context mContext;
 
-    private NotificationManager mNotificationManager;
-    private NotificationCompat.Builder mBuilder;
+    private NotificationUtil mNotification;
 
-    public FileDownloader(String url, Context context, String process) {
+    public FileDownloader(String url, Context context, int process) {
         mUrl = url;
         mProcess = process;
         mContext = context;
@@ -47,9 +41,8 @@ public class FileDownloader extends AsyncTask<String, Integer, Void> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder = new NotificationCompat.Builder(mContext);
-        sendBaseNotify();
+        mNotification = NotificationUtil.getInstance(mContext);
+        mNotification.sendNotification(mProcess, Const.PHASE_BEGIN);
     }
 
     @Override
@@ -109,55 +102,12 @@ public class FileDownloader extends AsyncTask<String, Integer, Void> {
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        sendProgressNotify(values[0]);
+        mNotification.sendProgressNotify(values[0]);
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        sendFinishNotify();
-    }
-
-    private void sendFinishNotify(){
-        Intent intent = new Intent(mContext, MainActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
-
-        Resources res = mContext.getResources();
-        if (mProcess.equals(Const.EX_PROC_DOWNLOAD)){
-            mBuilder.setContentTitle(res.getString(R.string.txt_notify_title_down_stop));
-            mBuilder.setContentText(res.getString(R.string.txt_notify_down_prog_finish));
-        }else {
-            mBuilder.setContentTitle(res.getString(R.string.txt_notify_title_upd_stop));
-            mBuilder.setContentText(res.getString(R.string.txt_notify_upd_prog_finish));
-        }
-
-        mBuilder.setProgress(0,0,false);
-        mBuilder.setContentIntent(pIntent);
-        mNotificationManager.notify(Const.NOTIFY_ID, mBuilder.build());
-
-    }
-
-    private void sendBaseNotify(){
-        Resources res = mContext.getResources();
-        mBuilder.setProgress(100, 0, false);
-        mBuilder.setAutoCancel(false);
-        if (mProcess.equals(Const.EX_PROC_DOWNLOAD)){
-            mBuilder.setSmallIcon(R.drawable.ic_file_download_white_18dp);
-            mBuilder.setTicker(res.getString(R.string.txt_notify_down_ticker));
-            mBuilder.setContentTitle(res.getString(R.string.txt_notify_title_down_start));
-            mBuilder.setContentText(res.getString(R.string.txt_notify_down_progress));
-        }else {
-            mBuilder.setSmallIcon(R.drawable.ic_autorenew_white_18dp);
-            mBuilder.setTicker(res.getString(R.string.txt_notify_upd_ticker));
-            mBuilder.setContentTitle(res.getString(R.string.txt_notify_title_upd_start));
-            mBuilder.setContentText(res.getString(R.string.txt_notify_upd_progress));
-        }
-
-        mNotificationManager.notify(Const.NOTIFY_ID, mBuilder.build());
-    }
-
-    private void sendProgressNotify(Integer progress) {
-        mBuilder.setProgress(100, progress, false);
-        mNotificationManager.notify(Const.NOTIFY_ID, mBuilder.build());
+        mNotification.sendNotification(mProcess, Const.PHASE_END);
     }
 }
